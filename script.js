@@ -25,46 +25,70 @@ function formatDate(unixTime) {
 }
 
 // ---------------------------------------------------------
-// ULTIMATE BRUTE-FORCE JSON PARSER
+// TIER 1: Standard JSON Parser
 // ---------------------------------------------------------
-// Instagram changes their JSON keys constantly (sometimes using "value", 
-// sometimes "title", sometimes wrapping it in "string_list_data").
-// This function ignores the rules and hunts for the raw data.
-function extractUsers(data) {
+function extractUsersJSON(data) {
     let users = new Map();
-    
     function search(node) {
         if (Array.isArray(node)) {
             node.forEach(search);
         } else if (node !== null && typeof node === 'object') {
             
-            // Format 1: Standard string_list_data (Most common for followers_1.json)
+            // Standard Instagram format
             if (node.string_list_data && Array.isArray(node.string_list_data)) {
                 node.string_list_data.forEach(item => {
                     if (item.value && typeof item.value === 'string') {
                         users.set(item.value, item.timestamp || node.timestamp || 0);
                     }
                 });
+            } 
+            // Alternative Object format
+            else if (node.value && typeof node.value === 'string') {
+                if (node.timestamp || (node.href && node.href.includes('instagram.com'))) {
+                    users.set(node.value, node.timestamp || 0);
+                }
+            } 
+            // Hidden in Title
+            else if (node.title && typeof node.title === 'string') {
+                if (node.timestamp || (node.href && node.href.includes('instagram.com'))) {
+                    users.set(node.title, node.timestamp || 0);
+                }
             }
-            
-            // Format 2: Direct value mapping with a profile link (Sometimes used in following.json)
-            else if (node.value && typeof node.value === 'string' && node.href && node.href.includes('instagram.com')) {
-                users.set(node.value, node.timestamp || 0);
-            }
-            
-            // Format 3: Username hidden in "title" property 
-            else if (node.title && typeof node.title === 'string' && node.href && node.href.includes('instagram.com')) {
-                users.set(node.title, node.timestamp || 0);
-            }
-
-            // Keep digging deeper into the JSON tree
             Object.values(node).forEach(search);
         }
     }
-    
     search(data);
     return users;
 }
+
+// ---------------------------------------------------------
+// TIER 2: Raw Text Brute-Force Extractor (The Fallback)
+// ---------------------------------------------------------
+// If Instagram completely broke their JSON structure, this uses Regex 
+// to forcefully pull usernames directly from the raw text string.
+function extractUsersRaw(rawText) {
+    let users = new Map();
+    
+    // Look for "value": "username" patterns
+    const valueRegex = /"value"\s*:\s*"([^"]+)"/g;
+    let match;
+    while ((match = valueRegex.exec(rawText)) !== null) {
+        if (match[1].length > 1 && !match[1].includes(' ')) {
+            users.set(match[1], 0); // Timestamp lost in raw extraction, but user is saved
+        }
+    }
+    
+    // Look for Instagram URLs: instagram.com/username
+    const urlRegex = /instagram\.com\/([a-zA-Z0-9._]+)/g;
+    while ((match = urlRegex.exec(rawText)) !== null) {
+        if (match[1].length > 1 && match[1] !== "p" && match[1] !== "tv") {
+            users.set(match[1], 0);
+        }
+    }
+    
+    return users;
+}
+
 
 // --- Drag, Drop & ZIP Auto-Extraction ---
 const dropZone = document.getElementById('dropZone');
@@ -95,6 +119,7 @@ async function handleZip(file) {
     followers.clear(); 
     following.clear();
     let promises = [];
+    let foundHtml = 0;
 
     try {
         const zip = await JSZip.loadAsync(file);
@@ -103,26 +128,24 @@ async function handleZip(file) {
             if (entry.dir) return; 
 
             const p = path.toLowerCase();
-            const fileName = p.split('/').pop(); // Get just the file name, ignore folders
+            const fileName = p.split('/').pop(); 
             
-            // Exclude non-JSON files and hidden mac files
             if (fileName.includes('__macosx') || fileName.startsWith('.') || !fileName.endsWith('.json')) return;
-
-            // Exclude files that sound like "following" but aren't the actual list
             if (fileName.includes('request') || fileName.includes('pending') || fileName.includes('blocked') || fileName.includes('close_friends') || fileName.includes('recent') || fileName.includes('unfollowed')) return;
 
-            // Target the specific files you listed
+            // Extract Followers
             if (fileName.match(/^followers(_\d+)?\.json$/)) {
                 promises.push(entry.async("string").then(content => {
-                    const parsed = JSON.parse(content);
-                    const extracted = extractUsers(parsed);
+                    let extracted = extractUsersJSON(JSON.parse(content));
+                    if (extracted.size === 0) extracted = extractUsersRaw(content); // Fallback
                     extracted.forEach((time, user) => followers.set(user, time));
                 }));
             } 
+            // Extract Following
             else if (fileName.match(/^following(_\d+)?\.json$/)) {
                 promises.push(entry.async("string").then(content => {
-                    const parsed = JSON.parse(content);
-                    const extracted = extractUsers(parsed);
+                    let extracted = extractUsersJSON(JSON.parse(content));
+                    if (extracted.size === 0) extracted = extractUsersRaw(content); // Fallback
                     extracted.forEach((time, user) => following.set(user, time));
                 }));
             }
@@ -131,7 +154,7 @@ async function handleZip(file) {
         await Promise.all(promises);
 
         if (followers.size === 0 || following.size === 0) {
-            status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Data Missing:</b> Found ${followers.size} followers and ${following.size} following. Ensure your ZIP contains data.`;
+            status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Data Missing:</b> Found ${followers.size} followers and ${following.size} following.`;
             return;
         }
 
@@ -215,4 +238,3 @@ function exportCSV() {
 }
 
 document.getElementById('searchInput').addEventListener('input', e => renderLists(e.target.value));
-
