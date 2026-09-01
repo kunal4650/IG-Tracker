@@ -4,7 +4,6 @@ let following = new Map();
 let currentTab = 'traitors';
 let calculatedLists = { traitors: [], fans: [], mutuals: [] };
 
-// Avatars and UI
 const gradients = ['from-pink-500 to-rose-500', 'from-purple-500 to-indigo-500', 'from-blue-500 to-cyan-500', 'from-amber-500 to-orange-500', 'from-emerald-500 to-teal-500'];
 
 function getAvatar(username) {
@@ -25,19 +24,23 @@ function formatDate(unixTime) {
     return new Date(unixTime * 1000).toLocaleDateString();
 }
 
-// Deep JSON Parser
+// 2025/2026 Instagram JSON Structure Parser
 function extractUsers(data) {
     let users = new Map();
     function search(node) {
         if (Array.isArray(node)) {
             node.forEach(search);
         } else if (node !== null && typeof node === 'object') {
-            if (node.href && typeof node.href === 'string' && node.href.includes('instagram.com/')) {
-                if (node.value && typeof node.value === 'string') {
-                    users.set(node.value, node.timestamp || 0);
-                }
+            // Instagram uses string_list_data arrays to hold the actual usernames
+            if (node.string_list_data && Array.isArray(node.string_list_data)) {
+                node.string_list_data.forEach(item => {
+                    if (item.value) {
+                        users.set(item.value, item.timestamp || 0);
+                    }
+                });
+            } else {
+                Object.values(node).forEach(search);
             }
-            Object.values(node).forEach(search);
         }
     }
     search(data);
@@ -81,36 +84,40 @@ async function handleZip(file) {
         zip.forEach((path, entry) => {
             if (entry.dir) return; // Skip folders
 
-            // THE FIX: Extract ONLY the file name, ignoring Instagram's folder names completely.
-            const fileName = path.split('/').pop().toLowerCase();
+            const p = path.toLowerCase();
             
-            if (fileName.includes('__macosx') || fileName.startsWith('.')) return; 
-            if (fileName.endsWith('.html')) foundHtml++;
-            if (!fileName.endsWith('.json')) return;
+            // Exclude non-relevant files
+            if (p.includes('__macosx') || p.endsWith('.DS_Store')) return; 
+            if (p.endsWith('.html')) foundHtml++;
+            if (!p.endsWith('.json')) return;
 
-            // Ignore irrelevant files like recent searches, pending requests, etc.
-            if (fileName.includes('request') || fileName.includes('pending') || fileName.includes('blocked') || fileName.includes('close_friends') || fileName.includes('recent')) return;
+            // Instagram stores these in connections/followers_and_following/
+            // But we will use regex to strictly match the FILE NAME, ignoring the folder path
+            const fileName = p.split('/').pop();
 
-            // Now properly identify the file based strictly on the file name
-            if (fileName.includes('follower')) {
-                promises.push(entry.async("string").then(c => {
-                    extractUsers(JSON.parse(c)).forEach((t, u) => followers.set(u, t));
+            // Match followers_1.json, followers_2.json, etc.
+            if (fileName.match(/^followers(_\d+)?\.json$/)) {
+                promises.push(entry.async("string").then(content => {
+                    const parsed = JSON.parse(content);
+                    extractUsers(parsed).forEach((time, user) => followers.set(user, time));
                 }));
-            } else if (fileName.includes('following')) {
-                promises.push(entry.async("string").then(c => {
-                    extractUsers(JSON.parse(c)).forEach((t, u) => following.set(u, t));
+            } 
+            // Match following.json or following_1.json
+            else if (fileName.match(/^following(_\d+)?\.json$/)) {
+                promises.push(entry.async("string").then(content => {
+                    const parsed = JSON.parse(content);
+                    extractUsers(parsed).forEach((time, user) => following.set(user, time));
                 }));
             }
         });
 
         await Promise.all(promises);
 
-        // Smart Error Handling
         if (followers.size === 0 || following.size === 0) {
             if (foundHtml > 0) {
-                status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Error:</b> You downloaded HTML format (Found ${foundHtml} HTML files). You must select JSON when requesting data from Instagram.`;
+                status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Format Error:</b> You downloaded the HTML version (Found ${foundHtml} HTML files). You must request <b>JSON format</b> from Instagram.`;
             } else {
-                status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Error:</b> Could not find valid JSON data in the ZIP. Found ${followers.size} followers and ${following.size} following.`;
+                status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Data Missing:</b> Could not find valid follower/following lists in this ZIP. Found ${followers.size} followers and ${following.size} following.`;
             }
             return;
         }
@@ -123,7 +130,7 @@ async function handleZip(file) {
         document.getElementById('metricFollowing').innerText = following.size.toLocaleString();
 
         calculateData();
-        showToast("ZIP Extracted Successfully!");
+        showToast("Data Processed Successfully!");
 
     } catch (err) {
         console.error(err);
