@@ -5,24 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>InsightsPro | Private Instagram Analytics</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- JSZip for local extraction -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Premium Font -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #0b0f19;
-            color: #e2e8f0;
-            -webkit-tap-highlight-color: transparent;
-        }
-        
-        /* Custom Scrollbars */
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; color: #e2e8f0; -webkit-tap-highlight-color: transparent; }
         ::-webkit-scrollbar { width: 6px; height: 6px; }
         ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
         ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
@@ -30,31 +19,12 @@
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Glassmorphism */
-        .glass {
-            background: rgba(20, 25, 40, 0.4);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-        .glass-card {
-            background: linear-gradient(145deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.5) 100%);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-        }
+        .glass { background: rgba(20, 25, 40, 0.4); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.5) 100%); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
 
-        /* Gradient Utilities */
-        .ig-gradient-text {
-            background: -webkit-linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        .ig-gradient-bg {
-            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
-        }
+        .ig-gradient-text { background: -webkit-linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .ig-gradient-bg { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
 
-        /* Animations */
         .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
         
@@ -62,36 +32,24 @@
         @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
 
         .pulse-border { animation: pulseBorder 2s infinite; }
-        @keyframes pulseBorder { 
-            0% { border-color: rgba(236, 72, 153, 0.3); }
-            50% { border-color: rgba(236, 72, 153, 0.8); box-shadow: 0 0 15px rgba(236, 72, 153, 0.2); }
-            100% { border-color: rgba(236, 72, 153, 0.3); }
-        }
+        @keyframes pulseBorder { 0% { border-color: rgba(236, 72, 153, 0.3); } 50% { border-color: rgba(236, 72, 153, 0.8); box-shadow: 0 0 15px rgba(236, 72, 153, 0.2); } 100% { border-color: rgba(236, 72, 153, 0.3); } }
 
         .hide { display: none !important; }
         
-        /* Toast Notification */
-        #toast {
-            position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%);
-            transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 100; width: 90%; max-width: 350px;
-        }
+        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; width: 90%; max-width: 350px; }
         #toast.show { transform: translateX(-50%) translateY(0); }
     </style>
 </head>
 <body class="relative min-h-screen flex flex-col">
 
-    <!-- Background Ambient Orbs -->
-    <div class="fixed top-[-10%] left-[-20%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-purple-600/20 blur-[100px] rounded-full pointer-events-none z-[-1]"></div>
-    <div class="fixed bottom-[-10%] right-[-20%] w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-pink-600/20 blur-[100px] rounded-full pointer-events-none z-[-1]"></div>
+    <div class="fixed top-[-10%] left-[-20%] w-[500px] h-[500px] bg-purple-600/20 blur-[100px] rounded-full pointer-events-none z-[-1]"></div>
+    <div class="fixed bottom-[-10%] right-[-20%] w-[500px] h-[500px] bg-pink-600/20 blur-[100px] rounded-full pointer-events-none z-[-1]"></div>
 
-    <!-- Toast Notification -->
     <div id="toast" class="glass-card px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-medium shadow-2xl border border-white/10">
         <i class="ph-fill ph-check-circle text-green-400 text-xl"></i>
         <span id="toastMsg" class="text-white">Success!</span>
     </div>
 
-    <!-- Navbar -->
     <nav class="glass sticky top-0 z-40 border-b border-white/5">
         <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
             <div class="flex items-center gap-2 md:gap-3 cursor-pointer" onclick="location.reload()">
@@ -100,407 +58,243 @@
                 </div>
                 <span class="font-bold text-xl md:text-2xl tracking-tight text-white">Insights<span class="text-pink-500">Pro</span></span>
             </div>
-            <div class="flex items-center gap-2 glass px-3 md:px-4 py-1.5 md:py-2 rounded-full text-[10px] md:text-xs font-semibold text-gray-300">
-                <i class="ph-fill ph-shield-check text-green-400 text-sm md:text-lg"></i>
+            <div class="flex items-center gap-2 glass px-3 py-1.5 rounded-full text-xs font-semibold text-gray-300">
+                <i class="ph-fill ph-shield-check text-green-400 text-sm"></i>
                 <span class="hidden sm:inline">100% Client-Side Processing</span>
-                <span class="sm:hidden">100% Private</span>
             </div>
         </div>
     </nav>
 
-    <!-- MAIN CONTENT -->
-    <main class="max-w-7xl mx-auto px-4 md:px-6 py-8 md:py-12 flex-1 w-full relative z-10 flex flex-col items-center justify-center">
+    <main class="max-w-7xl mx-auto px-4 md:px-6 py-8 flex-1 w-full relative z-10 flex flex-col items-center justify-center">
         
-        <!-- STEP 1: UPLOAD VIEW -->
         <div id="uploadView" class="fade-in-up w-full max-w-3xl mx-auto text-center">
             <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
                 Analyze your audience <br class="hidden md:block"><span class="ig-gradient-text">safely and instantly.</span>
             </h1>
-            <p class="text-gray-400 text-sm md:text-lg mb-8 md:mb-10 px-2">Your data never leaves your device. Drop your JSON export below to reveal who unfollowed you, your fans, and mutuals.</p>
+            <p class="text-gray-400 text-sm md:text-lg mb-8">Drop your .zip file OR your .json files below to reveal your connections.</p>
 
             <div id="dropZone" class="glass-card rounded-3xl p-8 md:p-12 transition-all duration-300 cursor-pointer border-2 border-dashed border-gray-600 hover:border-pink-500 hover:bg-white/5 group pulse-border relative overflow-hidden">
-                <div class="absolute inset-0 bg-gradient-to-b from-pink-500/0 to-pink-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 <div class="relative z-10">
-                    <div class="mx-auto h-16 w-16 md:h-20 md:w-20 glass rounded-full flex items-center justify-center mb-4 md:mb-6 group-hover:scale-110 transition-transform">
-                        <i class="ph-duotone ph-file-zip text-3xl md:text-4xl text-pink-400"></i>
+                    <div class="mx-auto h-16 w-16 glass rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                        <i class="ph-duotone ph-file-zip text-3xl text-pink-400"></i>
                     </div>
-                    <h3 class="text-lg md:text-xl font-bold text-white mb-2">Drop your .zip file here</h3>
-                    <p class="text-xs md:text-sm text-gray-400 mb-6">Tap to browse from your phone or computer</p>
-                    <input type="file" id="fileInput" accept=".zip" class="hidden">
-                    <button onclick="document.getElementById('fileInput').click()" class="ig-gradient-bg text-white px-6 md:px-8 py-3 rounded-xl font-bold hover:shadow-lg hover:shadow-pink-500/30 transition-all w-full md:w-auto transform active:scale-95">
-                        Select File
+                    <h3 class="text-lg md:text-xl font-bold text-white mb-2">Drop your .zip or .json files here</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mb-6">If the ZIP fails, unzip it and drop followers.json & following.json together.</p>
+                    <input type="file" id="fileInput" accept=".zip,.json" multiple class="hidden">
+                    <button onclick="document.getElementById('fileInput').click()" class="ig-gradient-bg text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all">
+                        Select File(s)
                     </button>
-                    <div id="uploadStatus" class="mt-4 md:mt-6 text-sm font-medium text-pink-400 hidden flex items-center justify-center gap-2"></div>
-                </div>
-            </div>
-
-            <!-- Mobile-Friendly How-To Guide -->
-            <div class="mt-10 glass-card rounded-2xl p-6 md:p-8 text-left">
-                <h3 class="font-bold text-white mb-5 flex items-center gap-2 text-lg">
-                    <i class="ph-fill ph-question text-blue-400 text-xl"></i> How to Use
-                </h3>
-                <div class="grid md:grid-cols-2 gap-4 md:gap-6 text-sm text-gray-300">
-                    <div class="flex gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
-                        <span class="w-6 h-6 rounded-full ig-gradient-bg flex items-center justify-center shrink-0 font-bold text-white">1</span> 
-                        <p>Open Instagram <b>Accounts Center</b> > <b>Your information and permissions</b> > <b>Download your information</b>.</p>
-                    </div>
-                    <div class="flex gap-3 bg-white/5 p-4 rounded-xl border border-white/5">
-                        <span class="w-6 h-6 rounded-full ig-gradient-bg flex items-center justify-center shrink-0 font-bold text-white">2</span> 
-                        <p>Select <b class="text-white">Followers and Following</b> only. Set format strictly to <b class="text-red-400">JSON</b> (Not HTML).</p>
-                    </div>
+                    <div id="uploadStatus" class="mt-4 text-sm font-medium text-pink-400 hidden flex items-center justify-center gap-2"></div>
                 </div>
             </div>
         </div>
 
-        <!-- STEP 2: DASHBOARD VIEW -->
         <div id="dashboardView" class="hide fade-in-up w-full">
-            
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <div>
-                    <h2 class="text-2xl md:text-3xl font-bold text-white">Your Dashboard</h2>
-                </div>
-                <button onclick="location.reload()" class="glass w-full sm:w-auto text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-white/10 transition flex items-center justify-center gap-2">
-                    <i class="ph-bold ph-arrow-u-up-left"></i> Analyze Another File
+                <h2 class="text-2xl font-bold text-white">Your Dashboard</h2>
+                <button onclick="location.reload()" class="glass text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-white/10 transition flex items-center justify-center gap-2">
+                    <i class="ph-bold ph-arrow-u-up-left"></i> Start Over
                 </button>
             </div>
 
-            <!-- Stats Grid (2x2 on mobile, 4x1 on desktop) -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
-                <div class="glass-card p-4 md:p-6 rounded-2xl relative overflow-hidden">
-                    <i class="ph-duotone ph-users absolute -right-2 -bottom-2 md:-right-4 md:-bottom-4 text-5xl md:text-7xl text-white/5"></i>
-                    <p class="text-xs md:text-sm text-gray-400 font-medium mb-1">Followers</p>
-                    <h3 class="text-2xl md:text-4xl font-extrabold text-white" id="metricFollowers">0</h3>
-                </div>
-                <div class="glass-card p-4 md:p-6 rounded-2xl relative overflow-hidden">
-                    <i class="ph-duotone ph-user-plus absolute -right-2 -bottom-2 md:-right-4 md:-bottom-4 text-5xl md:text-7xl text-white/5"></i>
-                    <p class="text-xs md:text-sm text-gray-400 font-medium mb-1">Following</p>
-                    <h3 class="text-2xl md:text-4xl font-extrabold text-white" id="metricFollowing">0</h3>
-                </div>
-                <div class="glass-card p-4 md:p-6 rounded-2xl border-t-2 border-t-red-500 relative overflow-hidden">
-                    <p class="text-xs md:text-sm text-red-400 font-medium mb-1 line-clamp-1">Not Following Back</p>
-                    <h3 class="text-2xl md:text-4xl font-extrabold text-white" id="metricTraitors">0</h3>
-                </div>
-                <div class="glass-card p-4 md:p-6 rounded-2xl border-t-2 border-t-green-500 relative overflow-hidden">
-                    <p class="text-xs md:text-sm text-green-400 font-medium mb-1">Your Fans</p>
-                    <h3 class="text-2xl md:text-4xl font-extrabold text-white" id="metricFans">0</h3>
-                </div>
+                <div class="glass-card p-4 rounded-2xl"><p class="text-xs text-gray-400 mb-1">Followers</p><h3 class="text-2xl font-extrabold" id="metricFollowers">0</h3></div>
+                <div class="glass-card p-4 rounded-2xl"><p class="text-xs text-gray-400 mb-1">Following</p><h3 class="text-2xl font-extrabold" id="metricFollowing">0</h3></div>
+                <div class="glass-card p-4 rounded-2xl border-t-2 border-t-red-500"><p class="text-xs text-red-400 mb-1">Not Following Back</p><h3 class="text-2xl font-extrabold" id="metricTraitors">0</h3></div>
+                <div class="glass-card p-4 rounded-2xl border-t-2 border-t-green-500"><p class="text-xs text-green-400 mb-1">Your Fans</p><h3 class="text-2xl font-extrabold" id="metricFans">0</h3></div>
             </div>
 
-            <!-- Interactive Section -->
             <div class="glass-card rounded-2xl flex flex-col border border-white/10 overflow-hidden">
-                
-                <!-- Toolbar (Scrollable on mobile) -->
-                <div class="p-4 md:p-6 border-b border-gray-700/50 flex flex-col lg:flex-row gap-4">
-                    
-                    <!-- Swipeable Tabs -->
+                <div class="p-4 border-b border-gray-700/50 flex flex-col lg:flex-row gap-4">
                     <div class="flex space-x-2 bg-black/40 p-1.5 rounded-xl overflow-x-auto scrollbar-hide w-full lg:w-auto border border-white/5">
-                        <button onclick="switchTab('traitors')" id="tab-traitors" class="tab-btn active px-4 md:px-6 py-2 rounded-lg text-sm font-bold bg-gray-700 text-white transition-all whitespace-nowrap">Not Following Back</button>
-                        <button onclick="switchTab('fans')" id="tab-fans" class="tab-btn px-4 md:px-6 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-all whitespace-nowrap">Fans</button>
-                        <button onclick="switchTab('mutuals')" id="tab-mutuals" class="tab-btn px-4 md:px-6 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-all whitespace-nowrap">Mutuals</button>
+                        <button onclick="switchTab('traitors')" id="tab-traitors" class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold bg-gray-700 text-white">Not Following Back</button>
+                        <button onclick="switchTab('fans')" id="tab-fans" class="tab-btn px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white">Fans</button>
+                        <button onclick="switchTab('mutuals')" id="tab-mutuals" class="tab-btn px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white">Mutuals</button>
                     </div>
-                    
-                    <!-- Search & Filters -->
-                    <div class="flex flex-wrap items-center gap-2 md:gap-3 w-full lg:w-auto lg:ml-auto">
-                        <div class="relative flex-1 min-w-[140px]">
-                            <i class="ph ph-magnifying-glass absolute left-3 top-2.5 text-gray-400"></i>
-                            <input type="text" id="searchInput" placeholder="Search..." class="w-full pl-9 pr-3 py-2 bg-black/40 border border-white/10 rounded-xl text-sm focus:border-pink-500 outline-none text-white">
-                        </div>
-                        
-                        <select id="timeFilter" class="bg-black/40 border border-white/10 rounded-xl py-2 px-3 text-sm focus:border-pink-500 outline-none text-white appearance-none">
-                            <option value="all">All Time</option>
-                            <option value="30">30 Days</option>
-                            <option value="180">6 Months</option>
-                        </select>
-
-                        <button onclick="toggleSort()" id="sortBtn" class="bg-black/40 border border-white/10 text-white p-2 rounded-xl flex items-center justify-center w-10 h-10 shrink-0">
-                            <i class="ph-bold ph-sort-descending" id="sortIcon"></i>
-                        </button>
-
-                        <button onclick="exportCSV()" class="ig-gradient-bg text-white px-3 py-2 rounded-xl text-sm font-bold w-full md:w-auto mt-2 md:mt-0 flex items-center justify-center gap-2">
-                            <i class="ph-bold ph-download-simple"></i> Export CSV
-                        </button>
+                    <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto lg:ml-auto">
+                        <input type="text" id="searchInput" placeholder="Search..." class="flex-1 px-4 py-2 bg-black/40 border border-white/10 rounded-xl text-sm focus:border-pink-500 outline-none text-white">
+                        <button onclick="exportCSV()" class="ig-gradient-bg text-white px-3 py-2 rounded-xl text-sm font-bold">Export CSV</button>
                     </div>
                 </div>
-
-                <!-- Scrollable Lists -->
                 <div class="p-2 md:p-4 bg-black/20">
-                    <ul id="traitorsList" class="max-h-[50vh] md:max-h-[600px] overflow-y-auto scrollbar-hide pr-1 space-y-1"></ul>
-                    <ul id="fansList" class="hide max-h-[50vh] md:max-h-[600px] overflow-y-auto scrollbar-hide pr-1 space-y-1"></ul>
-                    <ul id="mutualsList" class="hide max-h-[50vh] md:max-h-[600px] overflow-y-auto scrollbar-hide pr-1 space-y-1"></ul>
+                    <ul id="traitorsList" class="max-h-[600px] overflow-y-auto scrollbar-hide space-y-1"></ul>
+                    <ul id="fansList" class="hide max-h-[600px] overflow-y-auto scrollbar-hide space-y-1"></ul>
+                    <ul id="mutualsList" class="hide max-h-[600px] overflow-y-auto scrollbar-hide space-y-1"></ul>
                 </div>
             </div>
         </div>
     </main>
 
-    <!-- FOOTER & LEGAL -->
-    <footer class="border-t border-white/5 bg-black/40 mt-12 py-6 relative z-10">
-        <div class="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4 text-xs md:text-sm text-gray-400">
-            <p>&copy; 2026 InsightsPro. Built for Privacy.</p>
-            <div class="flex flex-wrap justify-center gap-4 md:gap-6 font-medium">
-                <button onclick="openModal('about')" class="hover:text-white transition">About</button>
-                <button onclick="openModal('faq')" class="hover:text-white transition">FAQ</button>
-                <button onclick="openModal('privacy')" class="hover:text-white transition">Privacy Policy</button>
-                <button onclick="openModal('terms')" class="hover:text-white transition">Terms of Service</button>
-            </div>
-        </div>
-    </footer>
-
-    <!-- MODAL OVERLAY -->
-    <div id="modalOverlay" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hide transition-opacity opacity-0" onclick="if(event.target === this) closeModal()">
-        <div class="glass-card w-full max-w-lg rounded-2xl overflow-hidden transform scale-95 transition-transform duration-300" id="modalBox">
-            <div class="flex justify-between items-center p-5 border-b border-white/10 bg-black/40">
-                <h3 id="modalTitle" class="text-xl font-bold text-white">Title</h3>
-                <button onclick="closeModal()" class="text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 p-1 rounded-lg transition"><i class="ph-bold ph-x text-lg"></i></button>
-            </div>
-            <div id="modalContent" class="p-6 max-h-[70vh] overflow-y-auto text-gray-300 text-sm space-y-4">
-                <!-- Content injected here -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Hidden Content for Modals -->
-    <template id="content-about">
-        <p><b>InsightsPro</b> is an advanced, privacy-first tool designed to help you understand your Instagram audience without compromising your security.</p>
-        <p>Unlike other third-party apps that require your username and password—risking your account being banned or hacked—this tool operates 100% locally in your web browser using your official data export.</p>
-    </template>
-
-    <template id="content-faq">
-        <div class="space-y-4">
-            <div>
-                <b class="text-white">Is this safe to use?</b>
-                <p class="mt-1">Yes. Because you never log in, there is zero risk of your account being flagged by Instagram. Your data is processed entirely on your own device.</p>
-            </div>
-            <div>
-                <b class="text-white">Do you save my data?</b>
-                <p class="mt-1">No. This application is stateless. Once you refresh or close this tab, all processed data is instantly wiped from memory. We do not have a database.</p>
-            </div>
-            <div>
-                <b class="text-white">Why does it say 0 followers when I upload?</b>
-                <p class="mt-1">You likely downloaded your data in HTML format. You must go back to Instagram and request the data specifically in <b>JSON format</b> for the parser to work.</p>
-            </div>
-        </div>
-    </template>
-
-    <template id="content-privacy">
-        <h4 class="text-white font-bold">1. Data Collection</h4>
-        <p>We do not collect, store, transmit, or share any personal data. The `.zip` file you upload is processed strictly within the memory of your local web browser.</p>
-        <h4 class="text-white font-bold mt-4">2. Cookies & Tracking</h4>
-        <p>We do not use tracking cookies or analytics software that compromises your privacy.</p>
-        <h4 class="text-white font-bold mt-4">3. External Servers</h4>
-        <p>No data is ever sent to an external server. You can turn off your internet connection after loading this page, and the tool will still function perfectly.</p>
-    </template>
-
-    <template id="content-terms">
-        <p>By using InsightsPro, you agree that the tool is provided "as-is" without any warranties.</p>
-        <p><b>Affiliation:</b> We are not affiliated, associated, authorized, endorsed by, or in any way officially connected with Instagram, Meta Platforms, Inc., or any of its subsidiaries.</p>
-        <p><b>Responsibility:</b> You are solely responsible for keeping your downloaded Instagram data file secure on your own device.</p>
-    </template>
-
     <script>
-        // Core State
         let followers = new Map();
         let following = new Map();
         let currentTab = 'traitors';
-        let sortDesc = true; 
         let calculatedLists = { traitors: [], fans: [], mutuals: [] };
-
-        // Modal Logic
-        function openModal(id) {
-            const overlay = document.getElementById('modalOverlay');
-            const box = document.getElementById('modalBox');
-            const titles = { 'about': 'About Us', 'faq': 'Frequently Asked Questions', 'privacy': 'Privacy Policy', 'terms': 'Terms of Service' };
-            
-            document.getElementById('modalTitle').innerText = titles[id];
-            document.getElementById('modalContent').innerHTML = document.getElementById(`content-${id}`).innerHTML;
-            
-            overlay.classList.remove('hide');
-            // Trigger reflow for animation
-            void overlay.offsetWidth;
-            overlay.classList.remove('opacity-0');
-            box.classList.remove('scale-95');
-        }
-
-        function closeModal() {
-            const overlay = document.getElementById('modalOverlay');
-            const box = document.getElementById('modalBox');
-            
-            overlay.classList.add('opacity-0');
-            box.classList.add('scale-95');
-            setTimeout(() => overlay.classList.add('hide'), 300);
-        }
-
-        // Gradients & UI Utils
         const gradients = ['from-pink-500 to-rose-500', 'from-purple-500 to-indigo-500', 'from-blue-500 to-cyan-500', 'from-amber-500 to-orange-500', 'from-emerald-500 to-teal-500'];
 
         function getAvatar(username) {
             const letter = username.charAt(0).toUpperCase();
             const gradClass = gradients[letter.charCodeAt(0) % gradients.length];
-            return `<div class="w-10 h-10 md:w-11 md:h-11 rounded-full md:rounded-xl bg-gradient-to-br ${gradClass} flex items-center justify-center text-white font-bold text-lg shadow-inner shrink-0">${letter}</div>`;
+            return `<div class="w-10 h-10 rounded-xl bg-gradient-to-br ${gradClass} flex items-center justify-center text-white font-bold shadow-inner shrink-0">${letter}</div>`;
         }
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-
-        function animateNumber(id, end) {
-            const obj = document.getElementById(id);
-            let start = null;
-            const step = (ts) => {
-                if (!start) start = ts;
-                const prog = Math.min((ts - start) / 1200, 1);
-                obj.innerHTML = Math.floor((1 - Math.pow(1 - prog, 4)) * end).toLocaleString();
-                if (prog < 1) window.requestAnimationFrame(step);
-                else obj.innerHTML = end.toLocaleString();
-            };
-            window.requestAnimationFrame(step);
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 3000);
         }
 
         function formatDate(unixTime) {
             if (!unixTime) return "Unknown";
-            return new Date(unixTime * 1000).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: '2-digit' });
+            return new Date(unixTime * 1000).toLocaleDateString();
         }
 
+        // AGGRESSIVE JSON PARSER
         function extractUsers(data) {
             let users = new Map();
             function search(node) {
-                if (Array.isArray(node)) node.forEach(search);
-                else if (node !== null && typeof node === 'object') {
+                if (Array.isArray(node)) {
+                    node.forEach(search);
+                } else if (node !== null && typeof node === 'object') {
+                    // Hunt for actual instagram links to bypass structure changes
+                    if (node.value && typeof node.value === 'string') {
+                        if (node.href && node.href.includes('instagram.com')) {
+                            users.set(node.value, node.timestamp || 0);
+                            return;
+                        }
+                    }
                     if (node.string_list_data && Array.isArray(node.string_list_data)) {
                         node.string_list_data.forEach(i => { if (i.value) users.set(i.value, i.timestamp || 0); });
-                    } else Object.values(node).forEach(search);
+                    } else {
+                        Object.values(node).forEach(search);
+                    }
                 }
             }
             search(data);
             return users;
         }
 
-        // File Logic
+        // FILE HANDLING (Supports ZIP and multiple JSONs)
         const dropZone = document.getElementById('dropZone');
         const fileInput = document.getElementById('fileInput');
 
         ['dragover', 'dragenter'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('border-pink-500', 'bg-white/5'); }));
         ['dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.remove('border-pink-500', 'bg-white/5'); }));
-        dropZone.addEventListener('drop', e => handleFile(e.dataTransfer.files[0]));
-        fileInput.addEventListener('change', e => handleFile(e.target.files[0]));
+        dropZone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
+        fileInput.addEventListener('change', e => handleFiles(e.target.files));
 
-        async function handleFile(file) {
-            if (!file || !file.name.endsWith('.zip')) return showToast("Upload a .zip file!");
+        async function handleFiles(fileList) {
+            const files = Array.from(fileList);
+            if (files.length === 0) return;
             
-            const statusLabel = document.getElementById('uploadStatus');
-            statusLabel.classList.remove('hidden');
-            statusLabel.innerHTML = '<i class="ph-bold ph-spinner-gap animate-spin text-lg"></i> Extracting locally...';
+            const status = document.getElementById('uploadStatus');
+            status.classList.remove('hidden');
+            status.innerHTML = '<i class="ph-bold ph-spinner-gap animate-spin text-lg"></i> Processing Data...';
 
             followers.clear(); following.clear();
+            let promises = [];
 
             try {
-                const zip = await JSZip.loadAsync(file);
-                let promises = [];
-
-                zip.forEach((path, entry) => {
-                    if (path.includes('__MACOSX')) return; 
-                    if (path.match(/(^|\/)followers(_\d+)?\.json$/i)) {
-                        promises.push(entry.async("string").then(c => extractUsers(JSON.parse(c)).forEach((t, u) => followers.set(u, t))));
-                    }
-                    if (path.match(/(^|\/)following\.json$/i)) {
-                        promises.push(entry.async("string").then(c => extractUsers(JSON.parse(c)).forEach((t, u) => following.set(u, t))));
-                    }
-                });
+                // If they uploaded a ZIP
+                if (files[0].name.endsWith('.zip')) {
+                    const zip = await JSZip.loadAsync(files[0]);
+                    zip.forEach((path, entry) => {
+                        if (path.includes('__MACOSX')) return; 
+                        
+                        // Aggressive regex to match ANY follower/following json naming convention
+                        if (path.match(/(^|\/)(followers?)(_\d+)?\.json$/i)) {
+                            promises.push(entry.async("string").then(c => extractUsers(JSON.parse(c)).forEach((t, u) => followers.set(u, t))));
+                        } else if (path.match(/(^|\/)(following)(_\d+)?\.json$/i)) {
+                            promises.push(entry.async("string").then(c => extractUsers(JSON.parse(c)).forEach((t, u) => following.set(u, t))));
+                        }
+                    });
+                } 
+                // If they uploaded JSON files manually
+                else {
+                    files.forEach(file => {
+                        if (!file.name.endsWith('.json')) return;
+                        const isFollower = file.name.match(/(followers?)(_\d+)?\.json$/i);
+                        const isFollowing = file.name.match(/(following)(_\d+)?\.json$/i);
+                        
+                        if (isFollower || isFollowing) {
+                            promises.push(new Promise((resolve) => {
+                                const reader = new FileReader();
+                                reader.onload = e => {
+                                    const parsed = JSON.parse(e.target.result);
+                                    if (isFollower) extractUsers(parsed).forEach((t, u) => followers.set(u, t));
+                                    if (isFollowing) extractUsers(parsed).forEach((t, u) => following.set(u, t));
+                                    resolve();
+                                };
+                                reader.readAsText(file);
+                            }));
+                        }
+                    });
+                }
 
                 await Promise.all(promises);
 
                 if (followers.size === 0 || following.size === 0) {
-                    statusLabel.innerHTML = '<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> Invalid data. Did you export as JSON?';
+                    status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500"></i> Found ${followers.size} followers & ${following.size} following. Ensure you are uploading JSON format.`;
                     return;
                 }
 
                 document.getElementById('uploadView').classList.add('hide');
                 document.getElementById('dashboardView').classList.remove('hide');
                 
-                animateNumber('metricFollowers', followers.size);
-                animateNumber('metricFollowing', following.size);
+                document.getElementById('metricFollowers').innerText = followers.size;
+                document.getElementById('metricFollowing').innerText = following.size;
 
                 calculateData();
                 showToast("Analysis Complete!");
 
             } catch (err) {
-                statusLabel.innerText = "Error reading ZIP file.";
+                status.innerText = "Error reading files. If ZIP fails, extract it first.";
             }
         }
 
-        // Logic & Rendering
         function calculateData() {
-            const filter = document.getElementById('timeFilter').value;
-            let cut = filter !== "all" ? Math.floor(Date.now()/1000) - (parseInt(filter)*86400) : 0;
             calculatedLists = { traitors: [], fans: [], mutuals: [] };
+            following.forEach((t, u) => { !followers.has(u) ? calculatedLists.traitors.push({u, t}) : calculatedLists.mutuals.push({u, t}); });
+            followers.forEach((t, u) => { if (!following.has(u)) calculatedLists.fans.push({u, t}); });
 
-            following.forEach((t, u) => {
-                if (t >= cut) { !followers.has(u) ? calculatedLists.traitors.push({u, t}) : calculatedLists.mutuals.push({u, t}); }
-            });
-            followers.forEach((t, u) => {
-                if (t >= cut && !following.has(u)) calculatedLists.fans.push({u, t});
-            });
-
-            animateNumber('metricTraitors', calculatedLists.traitors.length);
-            animateNumber('metricFans', calculatedLists.fans.length);
+            document.getElementById('metricTraitors').innerText = calculatedLists.traitors.length;
+            document.getElementById('metricFans').innerText = calculatedLists.fans.length;
             renderLists();
         }
 
         function renderLists(search = "") {
             const q = search.toLowerCase();
-            const sortMod = sortDesc ? -1 : 1;
-
             ['traitors', 'fans', 'mutuals'].forEach(cat => {
-                let list = calculatedLists[cat].filter(i => i.u.toLowerCase().includes(q)).sort((a, b) => (a.t - b.t) * sortMod);
+                let list = calculatedLists[cat].filter(i => i.u.toLowerCase().includes(q)).sort((a, b) => b.t - a.t);
                 const el = document.getElementById(`${cat}List`);
                 el.innerHTML = ''; 
                 
                 if (list.length === 0) {
-                    el.innerHTML = `<div class="p-8 text-center text-gray-500"><i class="ph-duotone ph-ghost text-4xl mb-2 text-gray-600"></i><p>No accounts found.</p></div>`;
+                    el.innerHTML = `<div class="p-8 text-center text-gray-500">No accounts found.</div>`;
                     return;
                 }
 
-                let html = '';
-                list.forEach((i, idx) => {
-                    const delay = idx < 15 ? `${idx * 0.03}s` : '0s';
-                    html += `
-                        <li class="list-item-anim px-3 py-3 bg-white/5 hover:bg-white/10 border border-white/5 rounded-xl flex items-center justify-between transition-colors group" style="animation-delay: ${delay}">
-                            <div class="flex items-center gap-3 md:gap-4 overflow-hidden">
-                                ${getAvatar(i.u)}
-                                <div class="truncate">
-                                    <a href="https://instagram.com/${i.u}" target="_blank" class="font-bold text-gray-200 text-sm md:text-base truncate">@${i.u}</a>
-                                    <p class="text-[10px] md:text-xs text-gray-500 flex items-center gap-1"><i class="ph-bold ph-calendar-blank"></i> ${formatDate(i.t)}</p>
-                                </div>
+                el.innerHTML = list.map((i, idx) => `
+                    <li class="list-item-anim px-3 py-3 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between mb-2" style="animation-delay: ${idx < 15 ? idx * 0.03 : 0}s">
+                        <div class="flex items-center gap-3">
+                            ${getAvatar(i.u)}
+                            <div>
+                                <a href="https://instagram.com/${i.u}" target="_blank" class="font-bold text-gray-200 text-sm">@${i.u}</a>
+                                <p class="text-[10px] text-gray-500">Date: ${formatDate(i.t)}</p>
                             </div>
-                            <a href="https://instagram.com/${i.u}" target="_blank" class="glass text-white px-3 py-1.5 rounded-lg text-xs font-semibold opacity-100 md:opacity-0 group-hover:opacity-100 transition-all shrink-0">Profile</a>
-                        </li>
-                    `;
-                });
-                el.innerHTML = html;
+                        </div>
+                    </li>
+                `).join('');
             });
         }
 
         function switchTab(id) {
             currentTab = id;
             ['traitors', 'fans', 'mutuals'].forEach(t => {
-                const btn = document.getElementById(`tab-${t}`);
-                const lst = document.getElementById(`${t}List`);
-                if (t === id) {
-                    btn.className = "tab-btn active px-4 md:px-6 py-2 rounded-lg text-sm font-bold bg-gray-700 text-white transition-all whitespace-nowrap";
-                    lst.classList.remove('hide');
-                } else {
-                    btn.className = "tab-btn px-4 md:px-6 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-all whitespace-nowrap";
-                    lst.classList.add('hide');
-                }
+                document.getElementById(`tab-${t}`).className = (t === id) ? "tab-btn active px-4 py-2 rounded-lg text-sm font-bold bg-gray-700 text-white" : "tab-btn px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white";
+                document.getElementById(`${t}List`).className = (t === id) ? "max-h-[600px] overflow-y-auto scrollbar-hide space-y-1" : "hide";
             });
-        }
-
-        function toggleSort() {
-            sortDesc = !sortDesc;
-            document.getElementById('sortIcon').className = sortDesc ? "ph-bold ph-sort-descending" : "ph-bold ph-sort-ascending";
-            renderLists(document.getElementById('searchInput').value);
         }
 
         function exportCSV() {
@@ -510,12 +304,10 @@
             a.href = encodeURI(csv);
             a.download = `IG_${currentTab}.csv`;
             a.click();
-            showToast("CSV Downloaded!");
         }
 
-        document.getElementById('timeFilter').addEventListener('change', calculateData);
         document.getElementById('searchInput').addEventListener('input', e => renderLists(e.target.value));
-
     </script>
 </body>
 </html>
+
