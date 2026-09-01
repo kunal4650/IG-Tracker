@@ -24,25 +24,44 @@ function formatDate(unixTime) {
     return new Date(unixTime * 1000).toLocaleDateString();
 }
 
-// 2025/2026 Instagram JSON Structure Parser
+// ---------------------------------------------------------
+// ULTIMATE BRUTE-FORCE JSON PARSER
+// ---------------------------------------------------------
+// Instagram changes their JSON keys constantly (sometimes using "value", 
+// sometimes "title", sometimes wrapping it in "string_list_data").
+// This function ignores the rules and hunts for the raw data.
 function extractUsers(data) {
     let users = new Map();
+    
     function search(node) {
         if (Array.isArray(node)) {
             node.forEach(search);
         } else if (node !== null && typeof node === 'object') {
-            // Instagram uses string_list_data arrays to hold the actual usernames
+            
+            // Format 1: Standard string_list_data (Most common for followers_1.json)
             if (node.string_list_data && Array.isArray(node.string_list_data)) {
                 node.string_list_data.forEach(item => {
-                    if (item.value) {
-                        users.set(item.value, item.timestamp || 0);
+                    if (item.value && typeof item.value === 'string') {
+                        users.set(item.value, item.timestamp || node.timestamp || 0);
                     }
                 });
-            } else {
-                Object.values(node).forEach(search);
             }
+            
+            // Format 2: Direct value mapping with a profile link (Sometimes used in following.json)
+            else if (node.value && typeof node.value === 'string' && node.href && node.href.includes('instagram.com')) {
+                users.set(node.value, node.timestamp || 0);
+            }
+            
+            // Format 3: Username hidden in "title" property 
+            else if (node.title && typeof node.title === 'string' && node.href && node.href.includes('instagram.com')) {
+                users.set(node.title, node.timestamp || 0);
+            }
+
+            // Keep digging deeper into the JSON tree
+            Object.values(node).forEach(search);
         }
     }
+    
     search(data);
     return users;
 }
@@ -76,37 +95,35 @@ async function handleZip(file) {
     followers.clear(); 
     following.clear();
     let promises = [];
-    let foundHtml = 0;
 
     try {
         const zip = await JSZip.loadAsync(file);
         
         zip.forEach((path, entry) => {
-            if (entry.dir) return; // Skip folders
+            if (entry.dir) return; 
 
             const p = path.toLowerCase();
+            const fileName = p.split('/').pop(); // Get just the file name, ignore folders
             
-            // Exclude non-relevant files
-            if (p.includes('__macosx') || p.endsWith('.DS_Store')) return; 
-            if (p.endsWith('.html')) foundHtml++;
-            if (!p.endsWith('.json')) return;
+            // Exclude non-JSON files and hidden mac files
+            if (fileName.includes('__macosx') || fileName.startsWith('.') || !fileName.endsWith('.json')) return;
 
-            // Instagram stores these in connections/followers_and_following/
-            // But we will use regex to strictly match the FILE NAME, ignoring the folder path
-            const fileName = p.split('/').pop();
+            // Exclude files that sound like "following" but aren't the actual list
+            if (fileName.includes('request') || fileName.includes('pending') || fileName.includes('blocked') || fileName.includes('close_friends') || fileName.includes('recent') || fileName.includes('unfollowed')) return;
 
-            // Match followers_1.json, followers_2.json, etc.
+            // Target the specific files you listed
             if (fileName.match(/^followers(_\d+)?\.json$/)) {
                 promises.push(entry.async("string").then(content => {
                     const parsed = JSON.parse(content);
-                    extractUsers(parsed).forEach((time, user) => followers.set(user, time));
+                    const extracted = extractUsers(parsed);
+                    extracted.forEach((time, user) => followers.set(user, time));
                 }));
             } 
-            // Match following.json or following_1.json
             else if (fileName.match(/^following(_\d+)?\.json$/)) {
                 promises.push(entry.async("string").then(content => {
                     const parsed = JSON.parse(content);
-                    extractUsers(parsed).forEach((time, user) => following.set(user, time));
+                    const extracted = extractUsers(parsed);
+                    extracted.forEach((time, user) => following.set(user, time));
                 }));
             }
         });
@@ -114,15 +131,11 @@ async function handleZip(file) {
         await Promise.all(promises);
 
         if (followers.size === 0 || following.size === 0) {
-            if (foundHtml > 0) {
-                status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Format Error:</b> You downloaded the HTML version (Found ${foundHtml} HTML files). You must request <b>JSON format</b> from Instagram.`;
-            } else {
-                status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Data Missing:</b> Could not find valid follower/following lists in this ZIP. Found ${followers.size} followers and ${following.size} following.`;
-            }
+            status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Data Missing:</b> Found ${followers.size} followers and ${following.size} following. Ensure your ZIP contains data.`;
             return;
         }
 
-        // Switch Views
+        // Switch Views on Success
         document.getElementById('uploadView').classList.add('hide');
         document.getElementById('dashboardView').classList.remove('hide');
         
@@ -133,8 +146,8 @@ async function handleZip(file) {
         showToast("Data Processed Successfully!");
 
     } catch (err) {
-        console.error(err);
-        status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> System Error: Corrupted ZIP file.`;
+        console.error("ZIP Error:", err);
+        status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> System Error: Could not read ZIP file.`;
     }
 }
 
