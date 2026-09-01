@@ -5,51 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>InsightsPro | Private Instagram Analytics</title>
     
+    <!-- External Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <!-- Premium Font -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; color: #e2e8f0; -webkit-tap-highlight-color: transparent; }
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
-        ::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
-        .glass { background: rgba(20, 25, 40, 0.4); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
-        .glass-card { background: linear-gradient(145deg, rgba(30, 41, 59, 0.5) 0%, rgba(15, 23, 42, 0.5) 100%); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); }
-
-        .ig-gradient-text { background: -webkit-linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .ig-gradient-bg { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
-
-        .fade-in-up { animation: fadeInUp 0.5s ease-out forwards; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .list-item-anim { animation: slideIn 0.3s ease-out forwards; opacity: 0; }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
-
-        .pulse-border { animation: pulseBorder 2s infinite; }
-        @keyframes pulseBorder { 0% { border-color: rgba(236, 72, 153, 0.3); } 50% { border-color: rgba(236, 72, 153, 0.8); box-shadow: 0 0 15px rgba(236, 72, 153, 0.2); } 100% { border-color: rgba(236, 72, 153, 0.3); } }
-
-        .hide { display: none !important; }
-        
-        #toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-150%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100; width: 90%; max-width: 350px; }
-        #toast.show { transform: translateX(-50%) translateY(0); }
-    </style>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="style.css">
 </head>
 <body class="relative min-h-screen flex flex-col">
 
+    <!-- Background Ambient Orbs -->
     <div class="fixed top-[-10%] left-[-20%] w-[500px] h-[500px] bg-purple-600/20 blur-[100px] rounded-full pointer-events-none z-[-1]"></div>
     <div class="fixed bottom-[-10%] right-[-20%] w-[500px] h-[500px] bg-pink-600/20 blur-[100px] rounded-full pointer-events-none z-[-1]"></div>
 
+    <!-- Toast Notification -->
     <div id="toast" class="glass-card px-4 py-3 rounded-xl flex items-center gap-3 text-sm font-medium shadow-2xl border border-white/10">
         <i class="ph-fill ph-check-circle text-green-400 text-xl"></i>
         <span id="toastMsg" class="text-white">Success!</span>
     </div>
 
+    <!-- Navbar -->
     <nav class="glass sticky top-0 z-40 border-b border-white/5">
         <div class="max-w-7xl mx-auto px-4 md:px-6 h-16 md:h-20 flex items-center justify-between">
             <div class="flex items-center gap-2 md:gap-3 cursor-pointer" onclick="location.reload()">
@@ -65,249 +44,81 @@
         </div>
     </nav>
 
+    <!-- Main Content -->
     <main class="max-w-7xl mx-auto px-4 md:px-6 py-8 flex-1 w-full relative z-10 flex flex-col items-center justify-center">
         
+        <!-- STEP 1: Upload View -->
         <div id="uploadView" class="fade-in-up w-full max-w-3xl mx-auto text-center">
             <h1 class="text-3xl md:text-5xl font-extrabold text-white mb-4 tracking-tight leading-tight">
                 Analyze your audience <br class="hidden md:block"><span class="ig-gradient-text">safely and instantly.</span>
             </h1>
-            <p class="text-gray-400 text-sm md:text-lg mb-8">Drop your .zip file OR your .json files below to reveal your connections.</p>
+            <p class="text-gray-400 text-sm md:text-lg mb-8">Drop your official Instagram data .zip file below. The system will automatically find and process the correct files.</p>
 
             <div id="dropZone" class="glass-card rounded-3xl p-8 md:p-12 transition-all duration-300 cursor-pointer border-2 border-dashed border-gray-600 hover:border-pink-500 hover:bg-white/5 group pulse-border relative overflow-hidden">
                 <div class="relative z-10">
                     <div class="mx-auto h-16 w-16 glass rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                         <i class="ph-duotone ph-file-zip text-3xl text-pink-400"></i>
                     </div>
-                    <h3 class="text-lg md:text-xl font-bold text-white mb-2">Drop your .zip or .json files here</h3>
-                    <p class="text-xs md:text-sm text-gray-400 mb-6">If the ZIP fails, unzip it and drop followers.json & following.json together.</p>
-                    <input type="file" id="fileInput" accept=".zip,.json" multiple class="hidden">
-                    <button onclick="document.getElementById('fileInput').click()" class="ig-gradient-bg text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all">
-                        Select File(s)
+                    <h3 class="text-lg md:text-xl font-bold text-white mb-2">Drop your Instagram .zip file here</h3>
+                    <p class="text-xs md:text-sm text-gray-400 mb-6">Your data is processed safely in your browser and never saved.</p>
+                    <input type="file" id="fileInput" accept=".zip" class="hidden">
+                    <button onclick="document.getElementById('fileInput').click()" class="ig-gradient-bg text-white px-6 py-3 rounded-xl font-bold hover:shadow-lg transition-all w-full md:w-auto transform active:scale-95">
+                        Select .ZIP File
                     </button>
                     <div id="uploadStatus" class="mt-4 text-sm font-medium text-pink-400 hidden flex items-center justify-center gap-2"></div>
                 </div>
             </div>
         </div>
 
+        <!-- STEP 2: Dashboard View -->
         <div id="dashboardView" class="hide fade-in-up w-full">
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
                 <h2 class="text-2xl font-bold text-white">Your Dashboard</h2>
-                <button onclick="location.reload()" class="glass text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-white/10 transition flex items-center justify-center gap-2">
-                    <i class="ph-bold ph-arrow-u-up-left"></i> Start Over
+                <button onclick="location.reload()" class="glass text-white px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-white/10 transition flex items-center justify-center gap-2 w-full sm:w-auto">
+                    <i class="ph-bold ph-arrow-u-up-left"></i> Analyze Another File
                 </button>
             </div>
 
+            <!-- Stats Grid -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 mb-6">
-                <div class="glass-card p-4 rounded-2xl"><p class="text-xs text-gray-400 mb-1">Followers</p><h3 class="text-2xl font-extrabold" id="metricFollowers">0</h3></div>
-                <div class="glass-card p-4 rounded-2xl"><p class="text-xs text-gray-400 mb-1">Following</p><h3 class="text-2xl font-extrabold" id="metricFollowing">0</h3></div>
-                <div class="glass-card p-4 rounded-2xl border-t-2 border-t-red-500"><p class="text-xs text-red-400 mb-1">Not Following Back</p><h3 class="text-2xl font-extrabold" id="metricTraitors">0</h3></div>
-                <div class="glass-card p-4 rounded-2xl border-t-2 border-t-green-500"><p class="text-xs text-green-400 mb-1">Your Fans</p><h3 class="text-2xl font-extrabold" id="metricFans">0</h3></div>
+                <div class="glass-card p-4 rounded-2xl"><p class="text-xs text-gray-400 mb-1">Total Followers</p><h3 class="text-2xl md:text-4xl font-extrabold" id="metricFollowers">0</h3></div>
+                <div class="glass-card p-4 rounded-2xl"><p class="text-xs text-gray-400 mb-1">Total Following</p><h3 class="text-2xl md:text-4xl font-extrabold" id="metricFollowing">0</h3></div>
+                <div class="glass-card p-4 rounded-2xl border-t-2 border-t-red-500"><p class="text-xs text-red-400 mb-1 truncate">Not Following Back</p><h3 class="text-2xl md:text-4xl font-extrabold text-white" id="metricTraitors">0</h3></div>
+                <div class="glass-card p-4 rounded-2xl border-t-2 border-t-green-500"><p class="text-xs text-green-400 mb-1 truncate">Your Fans</p><h3 class="text-2xl md:text-4xl font-extrabold text-white" id="metricFans">0</h3></div>
             </div>
 
+            <!-- Interactive Lists Section -->
             <div class="glass-card rounded-2xl flex flex-col border border-white/10 overflow-hidden">
                 <div class="p-4 border-b border-gray-700/50 flex flex-col lg:flex-row gap-4">
+                    
+                    <!-- Tabs -->
                     <div class="flex space-x-2 bg-black/40 p-1.5 rounded-xl overflow-x-auto scrollbar-hide w-full lg:w-auto border border-white/5">
-                        <button onclick="switchTab('traitors')" id="tab-traitors" class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold bg-gray-700 text-white">Not Following Back</button>
-                        <button onclick="switchTab('fans')" id="tab-fans" class="tab-btn px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white">Fans</button>
-                        <button onclick="switchTab('mutuals')" id="tab-mutuals" class="tab-btn px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white">Mutuals</button>
+                        <button onclick="switchTab('traitors')" id="tab-traitors" class="tab-btn active px-4 py-2 rounded-lg text-sm font-bold bg-gray-700 text-white whitespace-nowrap">Not Following Back</button>
+                        <button onclick="switchTab('fans')" id="tab-fans" class="tab-btn px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white whitespace-nowrap">Fans</button>
+                        <button onclick="switchTab('mutuals')" id="tab-mutuals" class="tab-btn px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white whitespace-nowrap">Mutuals</button>
                     </div>
+                    
+                    <!-- Actions -->
                     <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto lg:ml-auto">
-                        <input type="text" id="searchInput" placeholder="Search..." class="flex-1 px-4 py-2 bg-black/40 border border-white/10 rounded-xl text-sm focus:border-pink-500 outline-none text-white">
-                        <button onclick="exportCSV()" class="ig-gradient-bg text-white px-3 py-2 rounded-xl text-sm font-bold">Export CSV</button>
+                        <input type="text" id="searchInput" placeholder="Search username..." class="flex-1 px-4 py-2 bg-black/40 border border-white/10 rounded-xl text-sm focus:border-pink-500 outline-none text-white min-w-[150px]">
+                        <button onclick="exportCSV()" class="ig-gradient-bg text-white px-3 py-2 rounded-xl text-sm font-bold flex items-center gap-2 w-full sm:w-auto justify-center mt-2 sm:mt-0">
+                            <i class="ph-bold ph-download-simple"></i> Export CSV
+                        </button>
                     </div>
                 </div>
+                
+                <!-- Data Lists -->
                 <div class="p-2 md:p-4 bg-black/20">
-                    <ul id="traitorsList" class="max-h-[600px] overflow-y-auto scrollbar-hide space-y-1"></ul>
-                    <ul id="fansList" class="hide max-h-[600px] overflow-y-auto scrollbar-hide space-y-1"></ul>
-                    <ul id="mutualsList" class="hide max-h-[600px] overflow-y-auto scrollbar-hide space-y-1"></ul>
+                    <ul id="traitorsList" class="max-h-[50vh] md:max-h-[600px] overflow-y-auto scrollbar-hide space-y-1"></ul>
+                    <ul id="fansList" class="hide max-h-[50vh] md:max-h-[600px] overflow-y-auto scrollbar-hide space-y-1"></ul>
+                    <ul id="mutualsList" class="hide max-h-[50vh] md:max-h-[600px] overflow-y-auto scrollbar-hide space-y-1"></ul>
                 </div>
             </div>
         </div>
     </main>
 
-    <script>
-        let followers = new Map();
-        let following = new Map();
-        let currentTab = 'traitors';
-        let calculatedLists = { traitors: [], fans: [], mutuals: [] };
-        const gradients = ['from-pink-500 to-rose-500', 'from-purple-500 to-indigo-500', 'from-blue-500 to-cyan-500', 'from-amber-500 to-orange-500', 'from-emerald-500 to-teal-500'];
-
-        function getAvatar(username) {
-            const letter = username.charAt(0).toUpperCase();
-            const gradClass = gradients[letter.charCodeAt(0) % gradients.length];
-            return `<div class="w-10 h-10 rounded-xl bg-gradient-to-br ${gradClass} flex items-center justify-center text-white font-bold shadow-inner shrink-0">${letter}</div>`;
-        }
-
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 3000);
-        }
-
-        function formatDate(unixTime) {
-            if (!unixTime) return "Unknown";
-            return new Date(unixTime * 1000).toLocaleDateString();
-        }
-
-        // AGGRESSIVE JSON PARSER
-        function extractUsers(data) {
-            let users = new Map();
-            function search(node) {
-                if (Array.isArray(node)) {
-                    node.forEach(search);
-                } else if (node !== null && typeof node === 'object') {
-                    // Hunt for actual instagram links to bypass structure changes
-                    if (node.value && typeof node.value === 'string') {
-                        if (node.href && node.href.includes('instagram.com')) {
-                            users.set(node.value, node.timestamp || 0);
-                            return;
-                        }
-                    }
-                    if (node.string_list_data && Array.isArray(node.string_list_data)) {
-                        node.string_list_data.forEach(i => { if (i.value) users.set(i.value, i.timestamp || 0); });
-                    } else {
-                        Object.values(node).forEach(search);
-                    }
-                }
-            }
-            search(data);
-            return users;
-        }
-
-        // FILE HANDLING (Supports ZIP and multiple JSONs)
-        const dropZone = document.getElementById('dropZone');
-        const fileInput = document.getElementById('fileInput');
-
-        ['dragover', 'dragenter'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('border-pink-500', 'bg-white/5'); }));
-        ['dragleave', 'drop'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.remove('border-pink-500', 'bg-white/5'); }));
-        dropZone.addEventListener('drop', e => handleFiles(e.dataTransfer.files));
-        fileInput.addEventListener('change', e => handleFiles(e.target.files));
-
-        async function handleFiles(fileList) {
-            const files = Array.from(fileList);
-            if (files.length === 0) return;
-            
-            const status = document.getElementById('uploadStatus');
-            status.classList.remove('hidden');
-            status.innerHTML = '<i class="ph-bold ph-spinner-gap animate-spin text-lg"></i> Processing Data...';
-
-            followers.clear(); following.clear();
-            let promises = [];
-
-            try {
-                // If they uploaded a ZIP
-                if (files[0].name.endsWith('.zip')) {
-                    const zip = await JSZip.loadAsync(files[0]);
-                    zip.forEach((path, entry) => {
-                        if (path.includes('__MACOSX')) return; 
-                        
-                        // Aggressive regex to match ANY follower/following json naming convention
-                        if (path.match(/(^|\/)(followers?)(_\d+)?\.json$/i)) {
-                            promises.push(entry.async("string").then(c => extractUsers(JSON.parse(c)).forEach((t, u) => followers.set(u, t))));
-                        } else if (path.match(/(^|\/)(following)(_\d+)?\.json$/i)) {
-                            promises.push(entry.async("string").then(c => extractUsers(JSON.parse(c)).forEach((t, u) => following.set(u, t))));
-                        }
-                    });
-                } 
-                // If they uploaded JSON files manually
-                else {
-                    files.forEach(file => {
-                        if (!file.name.endsWith('.json')) return;
-                        const isFollower = file.name.match(/(followers?)(_\d+)?\.json$/i);
-                        const isFollowing = file.name.match(/(following)(_\d+)?\.json$/i);
-                        
-                        if (isFollower || isFollowing) {
-                            promises.push(new Promise((resolve) => {
-                                const reader = new FileReader();
-                                reader.onload = e => {
-                                    const parsed = JSON.parse(e.target.result);
-                                    if (isFollower) extractUsers(parsed).forEach((t, u) => followers.set(u, t));
-                                    if (isFollowing) extractUsers(parsed).forEach((t, u) => following.set(u, t));
-                                    resolve();
-                                };
-                                reader.readAsText(file);
-                            }));
-                        }
-                    });
-                }
-
-                await Promise.all(promises);
-
-                if (followers.size === 0 || following.size === 0) {
-                    status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500"></i> Found ${followers.size} followers & ${following.size} following. Ensure you are uploading JSON format.`;
-                    return;
-                }
-
-                document.getElementById('uploadView').classList.add('hide');
-                document.getElementById('dashboardView').classList.remove('hide');
-                
-                document.getElementById('metricFollowers').innerText = followers.size;
-                document.getElementById('metricFollowing').innerText = following.size;
-
-                calculateData();
-                showToast("Analysis Complete!");
-
-            } catch (err) {
-                status.innerText = "Error reading files. If ZIP fails, extract it first.";
-            }
-        }
-
-        function calculateData() {
-            calculatedLists = { traitors: [], fans: [], mutuals: [] };
-            following.forEach((t, u) => { !followers.has(u) ? calculatedLists.traitors.push({u, t}) : calculatedLists.mutuals.push({u, t}); });
-            followers.forEach((t, u) => { if (!following.has(u)) calculatedLists.fans.push({u, t}); });
-
-            document.getElementById('metricTraitors').innerText = calculatedLists.traitors.length;
-            document.getElementById('metricFans').innerText = calculatedLists.fans.length;
-            renderLists();
-        }
-
-        function renderLists(search = "") {
-            const q = search.toLowerCase();
-            ['traitors', 'fans', 'mutuals'].forEach(cat => {
-                let list = calculatedLists[cat].filter(i => i.u.toLowerCase().includes(q)).sort((a, b) => b.t - a.t);
-                const el = document.getElementById(`${cat}List`);
-                el.innerHTML = ''; 
-                
-                if (list.length === 0) {
-                    el.innerHTML = `<div class="p-8 text-center text-gray-500">No accounts found.</div>`;
-                    return;
-                }
-
-                el.innerHTML = list.map((i, idx) => `
-                    <li class="list-item-anim px-3 py-3 bg-white/5 border border-white/5 rounded-xl flex items-center justify-between mb-2" style="animation-delay: ${idx < 15 ? idx * 0.03 : 0}s">
-                        <div class="flex items-center gap-3">
-                            ${getAvatar(i.u)}
-                            <div>
-                                <a href="https://instagram.com/${i.u}" target="_blank" class="font-bold text-gray-200 text-sm">@${i.u}</a>
-                                <p class="text-[10px] text-gray-500">Date: ${formatDate(i.t)}</p>
-                            </div>
-                        </div>
-                    </li>
-                `).join('');
-            });
-        }
-
-        function switchTab(id) {
-            currentTab = id;
-            ['traitors', 'fans', 'mutuals'].forEach(t => {
-                document.getElementById(`tab-${t}`).className = (t === id) ? "tab-btn active px-4 py-2 rounded-lg text-sm font-bold bg-gray-700 text-white" : "tab-btn px-4 py-2 rounded-lg text-sm text-gray-400 hover:text-white";
-                document.getElementById(`${t}List`).className = (t === id) ? "max-h-[600px] overflow-y-auto scrollbar-hide space-y-1" : "hide";
-            });
-        }
-
-        function exportCSV() {
-            if (calculatedLists[currentTab].length === 0) return showToast("Nothing to export!");
-            let csv = "data:text/csv;charset=utf-8,Username,Date\n" + calculatedLists[currentTab].map(i => `${i.u},${formatDate(i.t)}`).join("\n");
-            const a = document.createElement("a");
-            a.href = encodeURI(csv);
-            a.download = `IG_${currentTab}.csv`;
-            a.click();
-        }
-
-        document.getElementById('searchInput').addEventListener('input', e => renderLists(e.target.value));
-    </script>
+    <!-- Custom JavaScript -->
+    <script src="script.js"></script>
 </body>
 </html>
 
