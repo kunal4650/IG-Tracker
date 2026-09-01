@@ -11,14 +11,12 @@ const gradients = [
     'from-emerald-500 to-teal-500'
 ];
 
-// Utility: Generate beautiful avatar circles from the first letter of the username
 function getAvatar(username) {
     const letter = username.charAt(0).toUpperCase();
     const gradClass = gradients[letter.charCodeAt(0) % gradients.length];
     return `<div class="w-10 h-10 rounded-xl bg-gradient-to-br ${gradClass} flex items-center justify-center text-white font-bold shadow-inner shrink-0">${letter}</div>`;
 }
 
-// Utility: Show sliding toast notification
 function showToast(msg) {
     const toast = document.getElementById('toast');
     document.getElementById('toastMsg').innerText = msg;
@@ -26,20 +24,18 @@ function showToast(msg) {
     setTimeout(() => toast.classList.remove('show'), 3000);
 }
 
-// Utility: Format unix timestamps from JSON
 function formatDate(unixTime) {
     if (!unixTime) return "Unknown";
     return new Date(unixTime * 1000).toLocaleDateString();
 }
 
-// Deep JSON Parser: Aggressively hunts for usernames in heavily nested Instagram data
+// Deep JSON Parser
 function extractUsers(data) {
     let users = new Map();
     function search(node) {
         if (Array.isArray(node)) {
             node.forEach(search);
         } else if (node !== null && typeof node === 'object') {
-            // Instagram frequently changes structures; searching for actual instagram web links is safer
             if (node.value && typeof node.value === 'string' && node.href && node.href.includes('instagram.com')) {
                 users.set(node.value, node.timestamp || 0);
                 return;
@@ -86,26 +82,44 @@ async function handleZip(file) {
     followers.clear(); 
     following.clear();
     let promises = [];
+    let foundHtml = 0;
 
     try {
         const zip = await JSZip.loadAsync(file);
         
         // Loop through EVERY file inside the ZIP archive
         zip.forEach((path, entry) => {
-            if (path.includes('__MACOSX')) return; // Ignore Mac hidden folders
+            const p = path.toLowerCase();
             
-            // Regex to find files named something like 'followers_1.json', 'follower.json', etc.
-            if (path.match(/(^|\/)(followers?)(_\d+)?\.json$/i)) {
+            // Ignore Mac hidden folders
+            if (p.includes('__macosx')) return; 
+            
+            // Diagnostic: Check if they downloaded HTML by accident
+            if (p.endsWith('.html')) foundHtml++;
+
+            // Only look at JSON files
+            if (!p.endsWith('.json')) return;
+
+            // Exclude requests, pending, blocked, or close friends lists
+            if (p.includes('request') || p.includes('pending') || p.includes('blocked') || p.includes('close_friends') || p.includes('hashtags')) return;
+
+            // Ultra-broad matching for Followers and Following
+            if (p.includes('follower')) {
                 promises.push(entry.async("string").then(c => extractUsers(JSON.parse(c)).forEach((t, u) => followers.set(u, t))));
-            } else if (path.match(/(^|\/)(following)(_\d+)?\.json$/i)) {
+            } else if (p.includes('following')) {
                 promises.push(entry.async("string").then(c => extractUsers(JSON.parse(c)).forEach((t, u) => following.set(u, t))));
             }
         });
 
         await Promise.all(promises);
 
+        // Smart Error Handling
         if (followers.size === 0 || following.size === 0) {
-            status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> Error: Missing JSON files inside the ZIP. Ensure you selected "JSON" during export.`;
+            if (foundHtml > 0) {
+                status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Error:</b> You downloaded HTML format! (Found ${foundHtml} HTML files). You must request <b>JSON format</b> from Instagram.`;
+            } else {
+                status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> <b>Error:</b> Could not find JSON data. Unzip the file on your computer and upload 'followers.json' and 'following.json' directly.`;
+            }
             return;
         }
 
@@ -118,11 +132,11 @@ async function handleZip(file) {
         document.getElementById('metricFollowing').innerText = following.size;
 
         calculateData();
-        showToast("ZIP File Analyzed Successfully!");
+        showToast("Data Extracted Successfully!");
 
     } catch (err) {
         console.error(err);
-        status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> Error reading ZIP file.`;
+        status.innerHTML = `<i class="ph-fill ph-warning-circle text-red-500 text-lg"></i> Error reading ZIP file. Please extract it and upload the JSON files manually.`;
     }
 }
 
@@ -202,4 +216,3 @@ function exportCSV() {
 
 // --- Search Listener ---
 document.getElementById('searchInput').addEventListener('input', e => renderLists(e.target.value));
-
