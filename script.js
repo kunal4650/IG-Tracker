@@ -20,7 +20,7 @@ function showToast(msg) {
 }
 
 function formatDate(unixTime) {
-    if (!unixTime) return "Unknown";
+    if (!unixTime || unixTime === 0) return "Unknown Date";
     return new Date(unixTime * 1000).toLocaleDateString();
 }
 
@@ -34,22 +34,17 @@ function extractUsersJSON(data) {
             node.forEach(search);
         } else if (node !== null && typeof node === 'object') {
             
-            // Standard Instagram format
             if (node.string_list_data && Array.isArray(node.string_list_data)) {
                 node.string_list_data.forEach(item => {
                     if (item.value && typeof item.value === 'string') {
                         users.set(item.value, item.timestamp || node.timestamp || 0);
                     }
                 });
-            } 
-            // Alternative Object format
-            else if (node.value && typeof node.value === 'string') {
+            } else if (node.value && typeof node.value === 'string') {
                 if (node.timestamp || (node.href && node.href.includes('instagram.com'))) {
                     users.set(node.value, node.timestamp || 0);
                 }
-            } 
-            // Hidden in Title
-            else if (node.title && typeof node.title === 'string') {
+            } else if (node.title && typeof node.title === 'string') {
                 if (node.timestamp || (node.href && node.href.includes('instagram.com'))) {
                     users.set(node.title, node.timestamp || 0);
                 }
@@ -62,30 +57,23 @@ function extractUsersJSON(data) {
 }
 
 // ---------------------------------------------------------
-// TIER 2: Raw Text Brute-Force Extractor (The Fallback)
+// TIER 2: Raw Text Brute-Force Extractor
 // ---------------------------------------------------------
-// If Instagram completely broke their JSON structure, this uses Regex 
-// to forcefully pull usernames directly from the raw text string.
 function extractUsersRaw(rawText) {
     let users = new Map();
-    
-    // Look for "value": "username" patterns
     const valueRegex = /"value"\s*:\s*"([^"]+)"/g;
     let match;
     while ((match = valueRegex.exec(rawText)) !== null) {
         if (match[1].length > 1 && !match[1].includes(' ')) {
-            users.set(match[1], 0); // Timestamp lost in raw extraction, but user is saved
+            users.set(match[1], 0); 
         }
     }
-    
-    // Look for Instagram URLs: instagram.com/username
     const urlRegex = /instagram\.com\/([a-zA-Z0-9._]+)/g;
     while ((match = urlRegex.exec(rawText)) !== null) {
         if (match[1].length > 1 && match[1] !== "p" && match[1] !== "tv") {
             users.set(match[1], 0);
         }
     }
-    
     return users;
 }
 
@@ -107,10 +95,7 @@ fileInput.addEventListener('change', e => handleZip(e.target.files[0]));
 
 async function handleZip(file) {
     if (!file) return;
-    if (!file.name.endsWith('.zip')) {
-        showToast("Please upload the Instagram .zip file.");
-        return;
-    }
+    if (!file.name.endsWith('.zip')) return showToast("Please upload the .zip file.");
     
     const status = document.getElementById('uploadStatus');
     status.classList.remove('hidden');
@@ -119,7 +104,6 @@ async function handleZip(file) {
     followers.clear(); 
     following.clear();
     let promises = [];
-    let foundHtml = 0;
 
     try {
         const zip = await JSZip.loadAsync(file);
@@ -133,20 +117,23 @@ async function handleZip(file) {
             if (fileName.includes('__macosx') || fileName.startsWith('.') || !fileName.endsWith('.json')) return;
             if (fileName.includes('request') || fileName.includes('pending') || fileName.includes('blocked') || fileName.includes('close_friends') || fileName.includes('recent') || fileName.includes('unfollowed')) return;
 
-            // Extract Followers
+            // Merge both parsers to guarantee maximum extraction
             if (fileName.match(/^followers(_\d+)?\.json$/)) {
                 promises.push(entry.async("string").then(content => {
-                    let extracted = extractUsersJSON(JSON.parse(content));
-                    if (extracted.size === 0) extracted = extractUsersRaw(content); // Fallback
-                    extracted.forEach((time, user) => followers.set(user, time));
+                    const parsedJSON = extractUsersJSON(JSON.parse(content));
+                    const parsedRaw = extractUsersRaw(content);
+                    
+                    parsedJSON.forEach((time, user) => followers.set(user, time));
+                    parsedRaw.forEach((time, user) => { if (!followers.has(user)) followers.set(user, time); });
                 }));
             } 
-            // Extract Following
             else if (fileName.match(/^following(_\d+)?\.json$/)) {
                 promises.push(entry.async("string").then(content => {
-                    let extracted = extractUsersJSON(JSON.parse(content));
-                    if (extracted.size === 0) extracted = extractUsersRaw(content); // Fallback
-                    extracted.forEach((time, user) => following.set(user, time));
+                    const parsedJSON = extractUsersJSON(JSON.parse(content));
+                    const parsedRaw = extractUsersRaw(content);
+                    
+                    parsedJSON.forEach((time, user) => following.set(user, time));
+                    parsedRaw.forEach((time, user) => { if (!following.has(user)) following.set(user, time); });
                 }));
             }
         });
@@ -158,7 +145,6 @@ async function handleZip(file) {
             return;
         }
 
-        // Switch Views on Success
         document.getElementById('uploadView').classList.add('hide');
         document.getElementById('dashboardView').classList.remove('hide');
         
